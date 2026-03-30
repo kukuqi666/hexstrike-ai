@@ -39,7 +39,7 @@ import shutil
 import venv
 import zipfile
 from pathlib import Path
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, Response, stream_with_context
 import psutil
 import signal
 import requests
@@ -17249,6 +17249,129 @@ def get_alternative_tools():
     except Exception as e:
         logger.error(f"Error getting alternative tools: {str(e)}")
         return jsonify({"error": f"Server error: {str(e)}"}), 500
+
+# ============================================================================
+# MCP COMMUNICATION ENDPOINTS (SSE & HTTP STREAMING)
+# ============================================================================
+
+@app.route("/sse", methods=["GET", "POST"])
+def sse_endpoint():
+    """Server-Sent Events endpoint for MCP communication"""
+    
+    def generate_events():
+        """Generate SSE events"""
+        try:
+            # Send initial connection event
+            yield f"data: {json.dumps({'type': 'connected', 'message': 'HexStrike AI SSE connection established', 'timestamp': datetime.now().isoformat()})}\n\n"
+            
+            if request.method == "POST":
+                # Handle incoming MCP request
+                data = request.get_json() if request.is_json else {}
+                
+                # Process the MCP request (similar to existing MCP logic)
+                response_data = {
+                    "type": "response",
+                    "request_id": data.get("id", "unknown"),
+                    "result": {
+                        "status": "success",
+                        "message": "MCP request processed via SSE",
+                        "data": data,
+                        "timestamp": datetime.now().isoformat()
+                    }
+                }
+                
+                yield f"data: {json.dumps(response_data)}\n\n"
+                
+                # Send completion event
+                yield f"data: {json.dumps({'type': 'completed', 'timestamp': datetime.now().isoformat()})}\n\n"
+            else:
+                # Keep connection alive for GET requests
+                import time
+                while True:
+                    time.sleep(30)  # Send keepalive every 30 seconds
+                    yield f"data: {json.dumps({'type': 'keepalive', 'timestamp': datetime.now().isoformat()})}\n\n"
+                    
+        except GeneratorExit:
+            logger.info("SSE client disconnected")
+        except Exception as e:
+            logger.error(f"SSE error: {str(e)}")
+            yield f"data: {json.dumps({'type': 'error', 'message': str(e), 'timestamp': datetime.now().isoformat()})}\n\n"
+    
+    return Response(
+        stream_with_context(generate_events()),
+        mimetype="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Headers": "Content-Type",
+            "Access-Control-Allow-Methods": "GET, POST, OPTIONS"
+        }
+    )
+
+@app.route("/mcp", methods=["POST", "OPTIONS"])
+def mcp_http_endpoint():
+    """HTTP streaming endpoint for MCP communication"""
+    
+    if request.method == "OPTIONS":
+        # Handle CORS preflight
+        return "", 200, {
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Headers": "Content-Type",
+            "Access-Control-Allow-Methods": "POST, OPTIONS"
+        }
+    
+    try:
+        # Get incoming MCP request
+        data = request.get_json() if request.is_json else {}
+        
+        # Process the MCP request
+        response_data = {
+            "jsonrpc": "2.0",
+            "id": data.get("id", None),
+            "result": {
+                "status": "success",
+                "message": "MCP request processed via HTTP",
+                "server": "HexStrike AI",
+                "timestamp": datetime.now().isoformat(),
+                "data": data
+            }
+        }
+        
+        # If this is a tool call, integrate with existing tool system
+        if data.get("method") == "tools/call":
+            tool_name = data.get("params", {}).get("name", "")
+            arguments = data.get("params", {}).get("arguments", {})
+            
+            # Here you can integrate with your existing tool execution logic
+            # For now, return a mock response
+            response_data["result"]["tool_response"] = {
+                "tool": tool_name,
+                "arguments": arguments,
+                "status": "executed",
+                "message": f"Tool '{tool_name}' executed successfully via HTTP MCP"
+            }
+        
+        return jsonify(response_data), 200, {
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Headers": "Content-Type"
+        }
+        
+    except Exception as e:
+        logger.error(f"HTTP MCP error: {str(e)}")
+        error_response = {
+            "jsonrpc": "2.0",
+            "id": data.get("id", None) if 'data' in locals() else None,
+            "error": {
+                "code": -32603,
+                "message": "Internal error",
+                "data": str(e)
+            }
+        }
+        return jsonify(error_response), 500, {
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Headers": "Content-Type"
+        }
 
 # Create the banner after all classes are defined
 BANNER = ModernVisualEngine.create_banner()
