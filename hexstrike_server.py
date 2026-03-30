@@ -17324,32 +17324,140 @@ def mcp_http_endpoint():
     try:
         # Get incoming MCP request
         data = request.get_json() if request.is_json else {}
+        method = data.get("method", "")
+        request_id = data.get("id", None)
         
-        # Process the MCP request
-        response_data = {
-            "jsonrpc": "2.0",
-            "id": data.get("id", None),
-            "result": {
-                "status": "success",
-                "message": "MCP request processed via HTTP",
-                "server": "HexStrike AI",
-                "timestamp": datetime.now().isoformat(),
-                "data": data
+        # Handle different MCP methods
+        if method == "initialize":
+            # MCP initialization
+            response_data = {
+                "jsonrpc": "2.0",
+                "id": request_id,
+                "result": {
+                    "protocolVersion": "2024-11-05",
+                    "capabilities": {
+                        "tools": {
+                            "listChanged": True
+                        },
+                        "logging": {}
+                    },
+                    "serverInfo": {
+                        "name": "HexStrike AI",
+                        "version": "6.0.0"
+                    }
+                }
             }
-        }
-        
-        # If this is a tool call, integrate with existing tool system
-        if data.get("method") == "tools/call":
+            
+        elif method == "tools/list":
+            # List available tools
+            response_data = {
+                "jsonrpc": "2.0",
+                "id": request_id,
+                "result": {
+                    "tools": [
+                        {
+                            "name": "hexstrike_scan",
+                            "description": "Execute HexStrike AI security scan",
+                            "inputSchema": {
+                                "type": "object",
+                                "properties": {
+                                    "target": {
+                                        "type": "string",
+                                        "description": "Target to scan"
+                                    },
+                                    "scan_type": {
+                                        "type": "string",
+                                        "enum": ["port", "vuln", "web", "full"],
+                                        "description": "Type of scan to perform"
+                                    }
+                                },
+                                "required": ["target"]
+                            }
+                        },
+                        {
+                            "name": "hexstrike_payload",
+                            "description": "Generate security payloads",
+                            "inputSchema": {
+                                "type": "object",
+                                "properties": {
+                                    "type": {
+                                        "type": "string",
+                                        "enum": ["reverse_shell", "bind_shell", "web_shell", "custom"],
+                                        "description": "Payload type"
+                                    },
+                                    "target": {
+                                        "type": "string",
+                                        "description": "Target IP/hostname"
+                                    },
+                                    "port": {
+                                        "type": "integer",
+                                        "description": "Target port"
+                                    }
+                                },
+                                "required": ["type", "target"]
+                            }
+                        },
+                        {
+                            "name": "hexstrike_enum",
+                            "description": "Enumeration and reconnaissance",
+                            "inputSchema": {
+                                "type": "object",
+                                "properties": {
+                                    "target": {
+                                        "type": "string",
+                                        "description": "Target to enumerate"
+                                    },
+                                    "enum_type": {
+                                        "type": "string",
+                                        "enum": ["subdomains", "directories", "ports", "technologies"],
+                                        "description": "Enumeration type"
+                                    }
+                                },
+                                "required": ["target", "enum_type"]
+                            }
+                        }
+                    ]
+                }
+            }
+            
+        elif method == "tools/call":
+            # Execute a tool
             tool_name = data.get("params", {}).get("name", "")
             arguments = data.get("params", {}).get("arguments", {})
             
-            # Here you can integrate with your existing tool execution logic
-            # For now, return a mock response
-            response_data["result"]["tool_response"] = {
-                "tool": tool_name,
-                "arguments": arguments,
-                "status": "executed",
-                "message": f"Tool '{tool_name}' executed successfully via HTTP MCP"
+            # Mock tool execution (you can integrate with real tools later)
+            if tool_name == "hexstrike_scan":
+                result = f"Scan completed for target: {arguments.get('target', 'unknown')}"
+            elif tool_name == "hexstrike_payload":
+                result = f"Generated {arguments.get('type', 'unknown')} payload for {arguments.get('target', 'unknown')}"
+            elif tool_name == "hexstrike_enum":
+                result = f"Enumeration completed for {arguments.get('target', 'unknown')}"
+            else:
+                result = f"Unknown tool: {tool_name}"
+            
+            response_data = {
+                "jsonrpc": "2.0",
+                "id": request_id,
+                "result": {
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": result
+                        }
+                    ]
+                }
+            }
+            
+        else:
+            # Unknown method
+            response_data = {
+                "jsonrpc": "2.0",
+                "id": request_id,
+                "error": {
+                    "code": -32601,
+                    "message": "Method not found",
+                    "data": f"Unknown method: {method}"
+                }
             }
         
         return jsonify(response_data), 200, {

@@ -10,29 +10,84 @@ import time
 def test_http_mcp():
     """Test HTTP MCP endpoint"""
     print("🔧 Testing HTTP MCP endpoint...")
+    
+    # Test initialize
     try:
         response = requests.post('http://localhost:8888/mcp', 
                                json={
                                    'jsonrpc': '2.0', 
                                    'id': 1, 
-                                   'method': 'tools/call', 
+                                   'method': 'initialize', 
                                    'params': {
-                                       'name': 'test_tool',
-                                       'arguments': {'param1': 'value1'}
+                                       'protocolVersion': '2024-11-05',
+                                       'capabilities': {},
+                                       'clientInfo': {
+                                           'name': 'test-client',
+                                           'version': '1.0.0'
+                                       }
                                    }
                                },
                                headers={'Content-Type': 'application/json'},
                                timeout=5)
         
-        print(f"✅ HTTP MCP Status: {response.status_code}")
+        print(f"✅ Initialize Status: {response.status_code}")
         if response.status_code == 200:
             data = response.json()
-            print(f"✅ HTTP MCP Response: {json.dumps(data, indent=2)}")
+            print(f"✅ Initialize Response: {json.dumps(data, indent=2)}")
         else:
-            print(f"❌ HTTP MCP Error: {response.text}")
+            print(f"❌ Initialize Error: {response.text}")
             
     except Exception as e:
-        print(f"❌ HTTP MCP Connection Error: {e}")
+        print(f"❌ Initialize Connection Error: {e}")
+    
+    # Test tools/list
+    try:
+        response = requests.post('http://localhost:8888/mcp', 
+                               json={
+                                   'jsonrpc': '2.0', 
+                                   'id': 2, 
+                                   'method': 'tools/list'
+                               },
+                               headers={'Content-Type': 'application/json'},
+                               timeout=5)
+        
+        print(f"✅ Tools List Status: {response.status_code}")
+        if response.status_code == 200:
+            data = response.json()
+            print(f"✅ Tools List Response: {json.dumps(data, indent=2)}")
+        else:
+            print(f"❌ Tools List Error: {response.text}")
+            
+    except Exception as e:
+        print(f"❌ Tools List Connection Error: {e}")
+    
+    # Test tool call
+    try:
+        response = requests.post('http://localhost:8888/mcp', 
+                               json={
+                                   'jsonrpc': '2.0', 
+                                   'id': 3, 
+                                   'method': 'tools/call',
+                                   'params': {
+                                       'name': 'hexstrike_scan',
+                                       'arguments': {
+                                           'target': '192.168.1.1',
+                                           'scan_type': 'port'
+                                       }
+                                   }
+                               },
+                               headers={'Content-Type': 'application/json'},
+                               timeout=5)
+        
+        print(f"✅ Tool Call Status: {response.status_code}")
+        if response.status_code == 200:
+            data = response.json()
+            print(f"✅ Tool Call Response: {json.dumps(data, indent=2)}")
+        else:
+            print(f"❌ Tool Call Error: {response.text}")
+            
+    except Exception as e:
+        print(f"❌ Tool Call Connection Error: {e}")
 
 def test_sse():
     """Test SSE endpoint"""
