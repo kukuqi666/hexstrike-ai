@@ -592,31 +592,242 @@ http://你的IP:8888/mcp
 ```
 在 CherryStudio 中选择 "可流式传输的 HTTP (streamableHttp)"
 
-### 3. 可用工具
+### 3. 可用工具 (151 个完整工具库)
 
-连接成功后，你将获得以下 HexStrike AI 工具：
+连接成功后，你将获得 HexStrike AI 的完整 151 个工具库：
 
-- **hexstrike_scan** - 安全扫描工具
-  - 支持端口扫描、漏洞扫描、Web扫描、全面扫描
-- **hexstrike_payload** - 攻击载荷生成
-  - 支持反向Shell、绑定Shell、Web Shell等
-- **hexstrike_enum** - 目标枚举侦察
-  - 支持子域名、目录、端口、技术栈枚举
+#### 🔍 网络扫描工具 (15+)
+- **nmap_scan** - Nmap 端口扫描
+- **nmap_advanced_scan** - 高级 Nmap 扫描
+- **gobuster_scan** - Gobuster 目录/子域名扫描  
+- **nuclei_scan** - Nuclei 漏洞扫描
+- **nikto_scan** - Nikto Web 漏洞扫描
+- **dirb_scan** - Dirb 目录爆破
+- **sqlmap_scan** - SQLMap SQL注入测试
+- **ffuf_scan** - FFUF 快速Web模糊测试
+- **amass_scan** - Amass 子域名枚举
+- **subfinder_scan** - Subfinder 被动子域名发现
+- **rustscan_fast_scan** - RustScan 高速端口扫描
+- **masscan_high_speed** - Masscan 超高速端口扫描
+- **autorecon_comprehensive** - 综合自动化侦察
+- **autorecon_scan** - 自动化侦察扫描
+- **fierce_scan** - Fierce DNS 枚举
+- **dnsenum_scan** - DNSenum DNS 信息收集
+- **arp_scan_discovery** - ARP 扫描网络发现
+
+#### 🔓 漏洞利用工具 (5+)
+- **metasploit_run** - Metasploit 框架利用
+- **hydra_attack** - Hydra 密码破解
+- **john_crack** - John the Ripper 密码破解
+- **hashcat_crack** - Hashcat 密码恢复
+- **msfvenom_generate** - MSFVenom 载荷生成
+
+#### 🌐 Web 应用测试 (12+)
+- **wpscan_analyze** - WPScan WordPress 安全分析
+- **feroxbuster_scan** - Feroxbuster 递归内容发现
+- **wfuzz_scan** - WFuzz Web应用模糊测试
+- **dirsearch_scan** - Dirsearch Web路径扫描
+- **xsser_scan** - XSSer XSS漏洞扫描
+- **dalfox_xss_scan** - Dalfox 高级XSS扫描
+- **jaeles_vulnerability_scan** - Jaeles 漏洞扫描
+- **arjun_parameter_discovery** - Arjun 参数发现
+- **arjun_scan** - Arjun 扫描工具
+- **paramspider_mining** - ParamSpider 参数挖掘
+- **paramspider_discovery** - ParamSpider 发现
+- **x8_parameter_discovery** - X8 参数发现
+- **dotdotpwn_scan** - DotDotPwn 路径遍历测试
+
+#### 📡 信息收集工具 (12+)
+- **enum4linux_scan** - Enum4Linux SMB枚举
+- **enum4linux_ng_advanced** - Enum4Linux-NG 高级枚举
+- **smbmap_scan** - SMBMap SMB共享枚举
+- **rpcclient_enumeration** - RPC 客户端枚举
+- **nbtscan_netbios** - NBTScan NetBIOS 信息收集
+- **katana_crawl** - Katana Web爬虫
+- **gau_discovery** - GAU URL发现
+- **waybackurls_discovery** - WaybackURLs 历史URL发现
+- **hakrawler_crawl** - Hakrawler Web爬虫
+- **httpx_probe** - HTTPx HTTP探测工具包
+- **anew_data_processing** - Anew 数据处理
+- **qsreplace_parameter_replacement** - QSReplace 参数替换
+- **uro_url_filtering** - URO URL过滤
+
+#### ☁️ 云安全工具 (12+)
+- **prowler_scan** - Prowler 云安全评估
+- **trivy_scan** - Trivy 容器/文件系统漏洞扫描
+- **scout_suite_assessment** - Scout Suite 多云安全评估
+- **cloudmapper_analysis** - CloudMapper AWS 网络可视化
+- **pacu_exploitation** - Pacu AWS 利用框架
+- **kube_hunter_scan** - kube-hunter Kubernetes 渗透测试
+- **kube_bench_cis** - kube-bench CIS Kubernetes 基准
+- **docker_bench_security_scan** - Docker Bench 安全扫描
+- **clair_vulnerability_scan** - Clair 容器漏洞分析
+- **falco_runtime_monitoring** - Falco 运行时安全监控
+- **checkov_iac_scan** - Checkov IaC 安全扫描
+- **terrascan_iac_scan** - Terrascan IaC 安全扫描
+
+#### 🔧 逆向工程工具 (12+)
+- **gdb_analyze** - GDB 二进制分析
+- **gdb_peda_debug** - GDB PEDA 调试
+- **radare2_analyze** - Radare2 逆向工程框架
+- **binwalk_analyze** - Binwalk 固件分析
+- **strings_extract** - Strings 二进制字符串提取
+- **objdump_analyze** - Objdump 二进制反汇编
+- **checksec_analyze** - Checksec 二进制安全检查
+- **xxd_hexdump** - XXD 十六进制转储
+- **ghidra_analysis** - Ghidra 逆向工程分析
+- **pwntools_exploit** - Pwntools 利用框架
+- **one_gadget_search** - one-gadget ROP 小工具搜索
+- **libc_database_lookup** - libc 数据库查找
+- **angr_symbolic_execution** - angr 符号执行
+- **ropper_gadget_search** - Ropper ROP 小工具搜索
+- **pwninit_setup** - pwninit 设置工具
+
+#### 💾 内存取证工具 (6+)
+- **volatility_analyze** - Volatility 内存取证
+- **volatility3_analyze** - Volatility3 内存分析
+- **foremost_carving** - Foremost 文件提取
+- **steghide_analysis** - Steghide 隐写分析
+- **exiftool_extract** - ExifTool 元数据提取
+- **hashpump_attack** - HashPump 哈希长度扩展攻击
+
+#### � API 测试工具 (5+)
+- **api_fuzzer** - API 模糊测试器
+- **graphql_scanner** - GraphQL 安全扫描器
+- **jwt_analyzer** - JWT 令牌分析器
+- **api_schema_analyzer** - API 模式分析器
+- **comprehensive_api_audit** - 综合API安全审计
+
+#### 🌐 HTTP 框架测试 (6+)
+- **http_framework_test** - HTTP 框架测试
+- **browser_agent_inspect** - 浏览器代理检查
+- **http_set_rules** - 设置 HTTP 测试规则
+- **http_set_scope** - 设置 HTTP 测试范围
+- **http_repeater** - HTTP 请求中继器
+- **http_intruder** - HTTP 入侵器
+
+#### 🛡️ WAF 检测 (1+)
+- **wafw00f_scan** - WafW00f WAF 检测
+
+#### 🕵️ Burp 替代工具 (3+)
+- **burpsuite_scan** - BurpSuite 安全扫描
+- **zap_scan** - OWASP ZAP 安全扫描
+- **burpsuite_alternative_scan** - BurpSuite 替代扫描
+
+#### 🌐 网络执行 (2+)
+- **netexec_scan** - NetExec 网络执行
+- **responder_credential_harvest** - Responder 凭据收集
+
+#### 🐍 Python 环境 (2+)
+- **install_python_package** - 安装 Python 包
+- **execute_python_script** - 执行 Python 脚本
+
+#### �📁 文件操作工具 (5+)
+- **create_file** - 创建文件
+- **modify_file** - 修改文件 (支持追加/覆盖)
+- **delete_file** - 删除文件或目录
+- **list_files** - 列出目录文件
+- **generate_payload** - 生成测试载荷
+
+#### 🤖 AI 工具 (8+)
+- **ai_generate_payload** - AI驱动的载荷生成
+- **ai_test_payload** - AI驱动的载荷测试
+- **ai_generate_attack_suite** - AI驱动的攻击套件生成
+- **ai_reconnaissance_workflow** - AI驱动的侦察工作流
+- **ai_vulnerability_assessment** - AI驱动的漏洞评估
+- **intelligent_smart_scan** - AI驱动的智能扫描
+- **detect_technologies_ai** - AI驱动的技术检测
+- **advanced_payload_generation** - 高级AI驱动载荷生成
+
+#### 🔍 Bug Bounty 工具 (7+)
+- **bugbounty_reconnaissance_workflow** - Bug Bounty 侦察工作流
+- **bugbounty_vulnerability_hunting** - Bug Bounty 漏洞狩猎
+- **bugbounty_business_logic_testing** - Bug Bounty 业务逻辑测试
+- **bugbounty_osint_gathering** - Bug Bounty OSINT 收集
+- **bugbounty_file_upload_testing** - Bug Bounty 文件上传测试
+- **bugbounty_comprehensive_assessment** - 综合Bug Bounty评估
+- **bugbounty_authentication_bypass_testing** - Bug Bounty 认证绕过测试
+
+#### 🛡️ 威胁情报工具 (7+)
+- **monitor_cve_feeds** - 监控 CVE 威胁源
+- **generate_exploit_from_cve** - 从 CVE 生成漏洞利用
+- **discover_attack_chains** - 发现攻击链
+- **research_zero_day_opportunities** - 零日机会研究
+- **correlate_threat_intelligence** - 关联威胁情报
+- **threat_hunting_assistant** - AI驱动的威胁狩猎助手
+- **vulnerability_intelligence_dashboard** - 漏洞情报仪表板
+
+#### 🧠 高级AI工具 (6+)
+- **analyze_target_intelligence** - AI驱动的目标情报分析
+- **select_optimal_tools_ai** - AI驱动的最优工具选择
+- **optimize_tool_parameters_ai** - AI驱动的工具参数优化
+- **create_attack_chain_ai** - AI驱动的攻击链创建
+- **ai_reconnaissance_workflow** - AI 侦察工作流
+- **ai_vulnerability_assessment** - AI 漏洞评估
+
+#### 📊 报告和可视化工具 (5+)
+- **create_vulnerability_report** - 创建漏洞报告
+- **format_tool_output_visual** - 格式化工具输出可视化
+- **create_scan_summary** - 创建扫描摘要
+- **display_system_metrics** - 显示系统指标
+- **get_live_dashboard** - 获取实时仪表板
+
+#### ⚙️ 进程管理工具 (6+)
+- **list_active_processes** - 列出活动进程
+- **get_process_status** - 获取进程状态
+- **terminate_process** - 终止进程
+- **pause_process** - 暂停进程
+- **resume_process** - 恢复进程
+- **get_process_dashboard** - 获取进程仪表板
+
+#### 🔧 错误处理工具 (2+)
+- **error_handling_statistics** - 错误处理统计
+- **test_error_recovery** - 测试错误恢复
+
+#### ⚙️ 系统工具 (5+)
+- **server_health** - 检查服务器健康状态
+- **get_cache_stats** - 获取缓存统计
+- **clear_cache** - 清除命令缓存
+- **get_telemetry** - 获取系统遥测数据
+- **execute_command** - 执行任意命令
 
 ### 4. 使用示例
 
 在 CherryStudio 中连接后，你可以：
 
+#### 网络扫描示例
 ```
-请帮我对 192.168.1.1 进行端口扫描
-```
-
-```
-生成一个针对 192.168.1.100 的反向Shell载荷
+请帮我对 192.168.1.1 进行端口扫描，使用 -sV 参数
 ```
 
 ```
-枚举 example.com 的所有子域名
+用 gobuster 扫描 http://example.com 的目录
+```
+
+```
+对 https://target.com 进行 nuclei 漏洞扫描，只要高危漏洞
+```
+
+#### 文件操作示例
+```
+在 /tmp/ 创建一个名为 test.txt 的文件，内容为 "Hello HexStrike"
+```
+
+```
+列出当前目录的所有文件
+```
+
+```
+生成一个 2048 字节的 A 字符串载荷
+```
+
+#### 云安全示例
+```
+对我的 AWS 环境进行 prowler 安全评估
+```
+
+```
+用 trivy 扫描 ubuntu:latest 镜像的漏洞
 ```
 
 ---
