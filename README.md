@@ -16,7 +16,7 @@
 
 **高级 AI 驱动的渗透测试 MCP 框架，包含 150+ 安全工具和 12+ 自主 AI 代理**
 
-[📋 新增功能](#新增功能) • [🏗️ 架构概述](#架构概述) • [🚀 安装](#安装) • [🛠️ 功能](#功能) • [🤖 AI 代理](#ai-代理) • [📡 API 参考](#api-参考)
+[📋 新增功能](#新增功能) • [🏗️ 架构概述](#架构概述) • [🚀 安装](#安装) • [🛠️ 功能](#功能) • [🤖 AI 代理](#ai-代理) • [📡 API 参考](#api-参考) • [🔌 CherryStudio 连接](#cherrystudio-连接)
 
 </div>
 
@@ -560,6 +560,64 @@ curl -X POST http://localhost:8888/api/intelligence/analyze-target \
 - **浏览器代理** - 无头 Chrome 自动化 Web 测试
 - **API 安全测试** - GraphQL、JWT、REST API 安全评估
 - **现代可视化引擎** - 实时仪表盘和进度跟踪
+
+---
+
+## 🔌 CherryStudio 连接
+
+HexStrike AI 支持多种连接方式，可在 CherryStudio 等 AI 工具中使用：
+
+### 1. 启动服务器
+```bash
+python hexstrike_server.py --port 8888
+```
+
+### 2. 连接方式
+
+#### 方式 1: 标准输入/输出 (stdio)
+```bash
+python hexstrike_mcp.py
+```
+在 CherryStudio 中选择 "标准输入/输出 (stdio)"
+
+#### 方式 2: 服务器发送事件 (SSE)
+```
+http://你的IP:8888/sse
+```
+在 CherryStudio 中选择 "服务器发送事件 (sse)"
+
+#### 方式 3: HTTP 流式传输
+```
+http://你的IP:8888/mcp
+```
+在 CherryStudio 中选择 "可流式传输的 HTTP (streamableHttp)"
+
+### 3. 可用工具
+
+连接成功后，你将获得以下 HexStrike AI 工具：
+
+- **hexstrike_scan** - 安全扫描工具
+  - 支持端口扫描、漏洞扫描、Web扫描、全面扫描
+- **hexstrike_payload** - 攻击载荷生成
+  - 支持反向Shell、绑定Shell、Web Shell等
+- **hexstrike_enum** - 目标枚举侦察
+  - 支持子域名、目录、端口、技术栈枚举
+
+### 4. 使用示例
+
+在 CherryStudio 中连接后，你可以：
+
+```
+请帮我对 192.168.1.1 进行端口扫描
+```
+
+```
+生成一个针对 192.168.1.100 的反向Shell载荷
+```
+
+```
+枚举 example.com 的所有子域名
+```
 
 ---
 

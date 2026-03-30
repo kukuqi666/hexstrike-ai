@@ -40,6 +40,10 @@ import venv
 import zipfile
 from pathlib import Path
 from flask import Flask, request, jsonify, Response, stream_with_context
+import asyncio
+import websockets
+import threading
+from concurrent.futures import ThreadPoolExecutor
 import psutil
 import signal
 import requests
@@ -49,11 +53,28 @@ import urllib.parse
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import List, Set, Tuple
-import asyncio
 import aiohttp
 from urllib.parse import urljoin, urlparse, parse_qs
 from bs4 import BeautifulSoup
 import selenium
+
+def get_local_ip():
+    """获取本机IP地址"""
+    try:
+        # 创建一个UDP socket连接到公共DNS，获取本机IP
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))
+        ip = s.getsockname()[0]
+        s.close()
+        return ip
+    except Exception:
+        # 备用方法：获取主机名对应的IP
+        try:
+            hostname = socket.gethostname()
+            ip = socket.gethostbyname(hostname)
+            return ip
+        except Exception:
+            return "127.0.0.1"
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
@@ -17481,6 +17502,92 @@ def mcp_http_endpoint():
             "Access-Control-Allow-Headers": "Content-Type"
         }
 
+# ============================================================================
+# WEBSOCKET ENDPOINT (REAL-TIME STREAMING)
+# ============================================================================
+
+class WebSocketManager:
+    """WebSocket 连接管理器"""
+    
+    def __init__(self):
+        self.clients = set()
+        self.executor = ThreadPoolExecutor(max_workers=10)
+    
+    async def register_client(self, websocket, path):
+        """注册新客户端"""
+        self.clients.add(websocket)
+        logger.info(f"🔌 WebSocket 客户端已连接: {len(self.clients)} 个活跃连接")
+        
+        try:
+            await websocket.send(json.dumps({
+                "type": "connected",
+                "message": "HexStrike AI WebSocket 连接已建立",
+                "timestamp": datetime.now().isoformat()
+            }))
+            
+            async for message in websocket:
+                await self.handle_message(websocket, message)
+                
+        except websockets.exceptions.ConnectionClosed:
+            logger.info("WebSocket 客户端断开连接")
+        finally:
+            self.clients.discard(websocket)
+            logger.info(f"🔌 WebSocket 客户端已断开: {len(self.clients)} 个活跃连接")
+    
+    async def handle_message(self, websocket, message):
+        """处理客户端消息"""
+        try:
+            data = json.loads(message)
+            command = data.get("command", "")
+            
+            if command:
+                # 在线程池中执行命令，避免阻塞事件循环
+                loop = asyncio.get_event_loop()
+                result = await loop.run_in_executor(
+                    self.executor, 
+                    execute_command, 
+                    command
+                )
+                
+                # 发送结果
+                await websocket.send(json.dumps({
+                    "type": "command_output",
+                    "output": str(result),
+                    "timestamp": datetime.now().isoformat()
+                }))
+                
+                # 发送完成信号
+                await websocket.send(json.dumps({
+                    "type": "command_complete",
+                    "status": "success",
+                    "timestamp": datetime.now().isoformat()
+                }))
+                
+        except Exception as e:
+            await websocket.send(json.dumps({
+                "type": "error",
+                "message": str(e),
+                "timestamp": datetime.now().isoformat()
+            }))
+
+# 创建 WebSocket 管理器
+ws_manager = WebSocketManager()
+
+def start_websocket_server():
+    """启动 WebSocket 服务器"""
+    async def run_server():
+        async with websockets.serve(ws_manager.register_client, "0.0.0.0", 8889):
+            logger.info("🌐 WebSocket 服务器已启动: ws://0.0.0.0:8889")
+            await asyncio.Future()  # 永远运行
+    
+    # 在新线程中运行 WebSocket 服务器
+    def run_in_thread():
+        asyncio.run(run_server())
+    
+    ws_thread = threading.Thread(target=run_in_thread, daemon=True)
+    ws_thread.start()
+    logger.info("🚀 WebSocket 服务器线程已启动")
+
 # Create the banner after all classes are defined
 BANNER = ModernVisualEngine.create_banner()
 
@@ -17501,6 +17608,9 @@ if __name__ == "__main__":
         API_PORT = args.port
 
     # Enhanced startup messages with beautiful formatting
+    # 获取本机IP
+    local_ip = get_local_ip()
+    
     startup_info = f"""
 {ModernVisualEngine.COLORS['MATRIX_GREEN']}{ModernVisualEngine.COLORS['BOLD']}╭─────────────────────────────────────────────────────────────────────────────╮{ModernVisualEngine.COLORS['RESET']}
 {ModernVisualEngine.COLORS['BOLD']}│{ModernVisualEngine.COLORS['RESET']} {ModernVisualEngine.COLORS['NEON_BLUE']}🚀 Starting HexStrike AI Tools API Server{ModernVisualEngine.COLORS['RESET']}
@@ -17510,11 +17620,19 @@ if __name__ == "__main__":
 {ModernVisualEngine.COLORS['BOLD']}│{ModernVisualEngine.COLORS['RESET']} {ModernVisualEngine.COLORS['ELECTRIC_PURPLE']}💾 Cache Size:{ModernVisualEngine.COLORS['RESET']} {CACHE_SIZE} | TTL: {CACHE_TTL}s
 {ModernVisualEngine.COLORS['BOLD']}│{ModernVisualEngine.COLORS['RESET']} {ModernVisualEngine.COLORS['TERMINAL_GRAY']}⏱️  Command Timeout:{ModernVisualEngine.COLORS['RESET']} {COMMAND_TIMEOUT}s
 {ModernVisualEngine.COLORS['BOLD']}│{ModernVisualEngine.COLORS['RESET']} {ModernVisualEngine.COLORS['MATRIX_GREEN']}✨ Enhanced Visual Engine:{ModernVisualEngine.COLORS['RESET']} Active
-{ModernVisualEngine.COLORS['MATRIX_GREEN']}{ModernVisualEngine.COLORS['BOLD']}╰─────────────────────────────────────────────────────────────────────────────╯{ModernVisualEngine.COLORS['RESET']}
+{ModernVisualEngine.COLORS['BOLD']}├─────────────────────────────────────────────────────────────────────────────┤{ModernVisualEngine.COLORS['RESET']}
+{ModernVisualEngine.COLORS['BOLD']}│{ModernVisualEngine.COLORS['RESET']} {ModernVisualEngine.COLORS['NEON_BLUE']}🔌 MCP Connection URLs:{ModernVisualEngine.COLORS['RESET']}
+{ModernVisualEngine.COLORS['BOLD']}│{ModernVisualEngine.COLORS['RESET']} {ModernVisualEngine.COLORS['CYBER_ORANGE']}   SSE (Server-Sent Events):{ModernVisualEngine.COLORS['RESET']} http://{local_ip}:{API_PORT}/sse
+{ModernVisualEngine.COLORS['BOLD']}│{ModernVisualEngine.COLORS['RESET']} {ModernVisualEngine.COLORS['CYBER_ORANGE']}   HTTP (Streamable):{ModernVisualEngine.COLORS['RESET']} http://{local_ip}:{API_PORT}/mcp
+{ModernVisualEngine.COLORS['BOLD']}│{ModernVisualEngine.COLORS['RESET']} {ModernVisualEngine.COLORS['CYBER_ORANGE']}   WebSocket:{ModernVisualEngine.COLORS['RESET']} ws://{local_ip}:8889
+{ModernVisualEngine.COLORS['BOLD']}│{ModernVisualEngine.COLORS['RESET']} {ModernVisualEngine.COLORS['MATRIX_GREEN']}{ModernVisualEngine.COLORS['BOLD']}╰─────────────────────────────────────────────────────────────────────────────╯{ModernVisualEngine.COLORS['RESET']}
 """
 
     for line in startup_info.strip().split('\n'):
         if line.strip():
             logger.info(line)
+
+    # 启动 WebSocket 服务器
+    start_websocket_server()
 
     app.run(host="0.0.0.0", port=API_PORT, debug=DEBUG_MODE)
